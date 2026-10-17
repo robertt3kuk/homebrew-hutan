@@ -68,11 +68,10 @@ at the Mac.
   dependency; Hutan's minimum Rust version is 1.98.
 - **Third-party, not official Homebrew:** the official repositories require a
   stable release and appropriate license; official casks additionally require
-  Gatekeeper checks to pass. Hutan is pre-alpha, has no LICENSE yet, and is not
-  notarized. An upstream tap is not Homebrew endorsement, and does not waive
-  redistribution obligations. We intentionally omit a formula `license` field
-  rather than claim a license upstream has not granted. Resolve licensing and
-  dependency redistribution obligations before public redistribution.
+  Gatekeeper checks to pass. Hutan is pre-alpha and not notarized. An upstream
+  tap is not Homebrew endorsement. Hutan is licensed MIT OR Apache-2.0 (the
+  formula says `license any_of: ["MIT", "Apache-2.0"]`); its dependencies keep
+  their own permissive licenses, checked by cargo-deny upstream.
 
 Rules consulted (2026-10-17):
 [creating a tap](https://docs.brew.sh/How-to-Create-and-Maintain-a-Tap),
@@ -156,7 +155,7 @@ brew untap robertt3kuk/hutan-local
 ```
 
 `--new` implies online eligibility audits, so it may report expected failures for
-an unreleased/private-to-local tap, a `file://` test URL, missing license, or the
+an unreleased/private-to-local tap, a `file://` test URL, or the
 ad-hoc signature. Do not suppress these to claim official eligibility. Run it
 on the public definition too: release-URL checks cannot pass until publication.
 Record failures separately from syntax/style and successful install tests.
@@ -198,8 +197,7 @@ On Apple Silicon macOS 26.6.2, Homebrew 7.0.9:
 
 ## Open distribution decisions
 
-1. Choose/add the upstream LICENSE and review dependency licenses; do not guess
-   an SPDX value in this tap.
+1. ~~License~~: decided upstream, MIT OR Apache-2.0.
 2. Obtain a stable Developer ID identity and notarize future releases if desired;
    until then the documented per-app Gatekeeper exception is a user decision.
 3. Tag/publish the first release and create/push this tap after maintainer review.
