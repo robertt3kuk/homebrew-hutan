@@ -37,6 +37,10 @@ trust the exact release, first attempt to open Hutan, then go to **System
 Settings → Privacy & Security → Open Anyway**, authenticate if asked, and
 confirm **Open**. This creates an exception for that app. Managed Macs may not
 allow this. A Homebrew package install does not itself approve first launch.
+Allowing the app once has **not** been verified to approve its separate
+`Contents/MacOS/hutan` CLI executable. The quarantined CLI was blocked locally;
+the bundle-wide exception behavior needs a user-present test. Developer ID
+signing and notarization would remove this ad-hoc distribution friction.
 
 We deliberately do **not** clear quarantine, re-sign the app, recommend
 `--no-quarantine`, disable Gatekeeper/SIP, or hide the warning in install hooks.
@@ -88,9 +92,14 @@ this tap still uses their package formats and checks, without claiming eligibili
 
 Before uninstalling the app, turn off **Start daemon at login** in Hutan Settings
 so `SMAppService` unregisters its bundled LaunchAgent. The cask additionally
-unloads `dev.hutan.daemon`, quits the app and calls its bundled `hutan daemon
-stop`; a daemon already stopped is not an uninstall failure. Stop the formula's
-daemon explicitly before removing the formula.
+unloads `dev.hutan.daemon`, quits the app, and sends TERM to registered
+`dev.hutan.Hutan` processes. Homebrew 7 discovers those through application
+labels in `launchctl list`; it cannot find an arbitrary plain process from its
+code-signing identifier. A system `pkill -TERM` fallback therefore matches only
+the current user's exact installed `Hutan.app/Contents/MacOS/hutand` path.
+No Hutan executable is run during uninstall: an unapproved quarantined binary
+can block even `--version` or `daemon stop`. A daemon already stopped is not an
+uninstall failure. Stop the formula's daemon explicitly before removing it.
 
 ```sh
 brew uninstall --cask robertt3kuk/hutan/hutan
@@ -120,14 +129,10 @@ for the manual publishing sequence. No workflow here publishes packages.
 
 On an Apple Silicon Mac, use a **temporary copy** of this tap and point its URLs
 at the generated local `file://` archives (keep the SHA-256s). For safe uninstall
-testing, also replace the temporary cask's script executable with `/usr/bin/env`
-and its arguments with `["HUTAN_HOME=/absolute/temp/home",
-"#{appdir}/Hutan.app/Contents/MacOS/hutan", "daemon", "stop"]`.
-**Homebrew scrubs `HUTAN_HOME` from its own environment**, so putting it only
-before `brew uninstall` is not enough to isolate the script. Replace that copy's
-`quit` and `launchctl` IDs with `dev.hutan.homebrew-test` too, so tests cannot quit
-or unregister a real user installation. Do not publish these test substitutions.
-Commit the temporary copy before tapping it:
+testing, replace that copy's `quit`, `signal` and `launchctl` bundle IDs with
+`dev.hutan.homebrew-test`, so tests cannot quit or unregister a real user
+installation. The `pkill` script is already scoped to the temporary appdir.
+Do not publish those test substitutions. Commit the copy before tapping it:
 
 ```sh
 brew tap robertt3kuk/hutan-local /absolute/path/to/temporary-tap
