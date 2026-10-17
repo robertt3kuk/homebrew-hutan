@@ -1,0 +1,21 @@
+name: Tap syntax
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  syntax:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Check formula and cask style
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: "1"
+        run: brew style "$GITHUB_WORKSPACE/Casks/hutan.rb" "$GITHUB_WORKSPACE/Formula/hutan.rb"
