@@ -164,6 +164,38 @@ Clean up only test-installed build dependencies; never autoremove pre-existing
 formulae. No test needs to launch the desktop or touch the real Hutan data,
 agent configs, login items, or Keychain.
 
+## Local results (2026-10-17)
+
+On Apple Silicon macOS 26.6.2, Homebrew 7.0.9:
+
+- `brew style` on both final definitions: **2 files inspected, no offenses**.
+- `brew audit --formula robertt3kuk/hutan-review/hutan`: **exit 0**.
+- `brew audit --cask --new robertt3kuk/hutan-review/hutan`: **4 eligibility
+  problems**: no livecheck release yet, ZIP download 404, binary URL 404, and
+  GitHub notability below official thresholds. These are not suppressed.
+- Final local-file cask install into a scratch `--appdir`: **successful**;
+  strict deep codesign verification passed and quarantine remained present.
+  Final uninstall completed normally using system `pkill`, without running
+  Hutan. Test-only bundle IDs prevented touching a real app/login item.
+- Quarantined bundled `hutan --version` did not return within 120 seconds;
+  `spctl --assess --type execute` rejected the ad-hoc app. No security bypass
+  or automatic exception was used. First-open/CLI approval needs user testing.
+- Real `brew install --formula --build-from-source --skip-link --no-ask`
+  from a local source archive succeeded with Homebrew Rust **1.99.0_1**:
+  **8 files, 21.2 MB, built in 9 minutes**. After linking, `hutan --version`
+  printed **hutan 0.1.0**, `hutand --version` printed **hutand 0.1.0**;
+  both `--help` commands and `brew test` passed.
+  That source build used commit `2a6843a`; subsequent source changes concern
+  only cask uninstall/packaging documentation, not the CLI/daemon or formula.
+- The fallback's anchored, user-scoped TERM matcher was exercised on real
+  test processes, including an app path containing spaces: the target exited
+  with SIGTERM, while a same-name process in a different bundle stayed alive.
+- Formula/cask uninstalls, all temporary untaps and trust removal completed.
+  Only the six newly added build dependencies (`rust`, `llvm`, `libgit2`,
+  `libssh2`, `pkgconf`, `z3`) were removed; before/after package lists matched.
+  No app was installed in `/Applications`, no desktop or real daemon launched,
+  and no real Hutan data, agent configuration or Keychain was touched.
+
 ## Open distribution decisions
 
 1. Choose/add the upstream LICENSE and review dependency licenses; do not guess
