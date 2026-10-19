@@ -1,6 +1,6 @@
 cask "hutan" do
   version "0.1.0"
-  sha256 "eccf9acfbdddbfa8fbe9fa158fd06105cfcd421612ab40d3bac008a2d1b18c19"
+  sha256 "98ffcdc2e6eafeccd6ad1afe90ce3d823d8c050bb85dc2bc7824494848c1735f"
 
   url "https://github.com/robertt3kuk/hutan/releases/download/v#{version}/Hutan-#{version}-arm64.zip"
   name "Hutan"
