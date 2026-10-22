@@ -2,8 +2,8 @@
 
 Upstream-maintained, third-party packaging for [Hutan](https://github.com/robertt3kuk/hutan),
 a native macOS agentic development environment. Requires **Apple Silicon and
-macOS 13 (Ventura) or later**. The first release must be published before these
-GitHub URLs can be installed; no release is fabricated by this repository.
+macOS 13 (Ventura) or later**. Both packages install the exact archives of a
+published GitHub release, pinned by SHA-256.
 
 ## Install
 
@@ -14,6 +14,8 @@ brew install --cask robertt3kuk/hutan/hutan # Hutan.app + bundled CLI and daemon
 # OR:
 brew install robertt3kuk/hutan/hutan        # source-built CLI and daemon only
 ```
+
+Upgrade with `brew upgrade --cask hutan` (app) or `brew upgrade hutan` (formula).
 
 Homebrew 7 can ask you to trust this third-party package. Review it before
 accepting; whole-tap trust is not required. If tapping separately, use
@@ -27,7 +29,7 @@ Start/stop its daemon explicitly with `hutan daemon start` / `hutan daemon stop`
 
 ## Gatekeeper: read before opening
 
-Hutan 0.1.0 is **ad-hoc signed, not notarized**. An intact ad-hoc signature is
+Hutan is **ad-hoc signed, not notarized**. An intact ad-hoc signature is
 not an Apple Developer ID and does not satisfy Gatekeeper's normal downloaded-app
 policy. Homebrew keeps quarantine on the download and installed app.
 
@@ -163,6 +165,26 @@ Clean up only test-installed build dependencies; never autoremove pre-existing
 formulae. No test needs to launch the desktop or touch the real Hutan data,
 agent configs, login items, or Keychain.
 
+## Local results for 0.2.0 (2026-10-22)
+
+On Apple Silicon, Homebrew 7.0.10, from a committed temporary copy of this tap:
+
+- `brew style` on both definitions: **2 files inspected, no offenses**.
+- `brew audit --strict` for the formula and the cask: **exit 0**.
+- `brew audit --strict --online --formula` and `brew audit --cask --new`
+  against the release URLs: only the expected problems before publication.
+  The formula reports a source URL 404. The cask reports a ZIP 404, a binary
+  URL 404, livecheck still at 0.1.0 and notability.
+- With `file://` URLs to the generated archives: `brew audit --online --cask`
+  downloaded and extracted the ZIP, reporting only livecheck, and
+  `brew fetch --cask` verified the SHA-256.
+- No Homebrew install was performed. The formula's build ran instead:
+  `cargo fetch --locked`, then `cargo install --locked --offline` for
+  `crates/cli` and `crates/daemon`, from the extracted source archive with
+  `MACOSX_DEPLOYMENT_TARGET=13.0`. It compiled no GPUI and printed
+  `hutan 0.2.0` and `hutand 0.2.0`. The formula's `test do` checks passed by
+  hand, as did `hutan daemon start|status|stop`.
+
 ## Local results (2026-10-17)
 
 On Apple Silicon macOS 26.6.2, Homebrew 7.0.9:
@@ -200,4 +222,3 @@ On Apple Silicon macOS 26.6.2, Homebrew 7.0.9:
 1. ~~License~~: decided upstream, MIT OR Apache-2.0.
 2. Obtain a stable Developer ID identity and notarize future releases if desired;
    until then the documented per-app Gatekeeper exception is a user decision.
-3. Tag/publish the first release and create/push this tap after maintainer review.
