@@ -165,6 +165,42 @@ Clean up only test-installed build dependencies; never autoremove pre-existing
 formulae. No test needs to launch the desktop or touch the real Hutan data,
 agent configs, login items, or Keychain.
 
+## Local results for 0.3.1 (2026-10-28)
+
+On Apple Silicon, Homebrew 7.0.10, from a committed temporary copy of this tap
+(`file://` URLs to the generated archives, test-only bundle ID
+`dev.hutan.homebrew-test`), tapped as `robertt3kuk/hutan-local`:
+
+- `brew style` on the tap: **3 files inspected, no offenses**.
+- `brew audit --strict` for the formula and the cask: **exit 0**. `brew audit
+  --formula`: **exit 0**. `brew audit --cask --new`: the expected problems
+  only, **3**: the repository is not notable enough, livecheck still finds
+  0.3.0 (0.3.1 is not published), and the ad-hoc signature does not meet
+  Gatekeeper's distributor requirements. The `file://` ZIP downloaded and
+  extracted.
+- Cask install into a scratch `--appdir`: **successful**; `codesign --verify
+  --deep --strict` valid, quarantine present. The quarantined bundled `hutan
+  --version` did not return within 60 seconds (as in 0.1.0, 0.2.0 and 0.3.0:
+  first-open/CLI approval still needs a user at the Mac). The same executables
+  from the ZIP, extracted without quarantine, are byte-identical to the
+  installed ones and printed `hutan 0.3.1` and `hutand 0.3.1`. Uninstall with
+  `HUTAN_HOME` on a scratch folder completed normally using system `pkill`,
+  without running Hutan.
+- Formula `brew install --build-from-source` from the local source archive:
+  **successful**, 11 files, 34.5 MB, built in 5 minutes with Homebrew Rust
+  1.99.1 (`cargo fetch`, then `cargo install` for `crates/cli` and
+  `crates/daemon`, no GPUI). `hutan --version` printed **hutan 0.3.1**,
+  `hutand --version` **hutand 0.3.1**, `brew test` passed, and `hutan daemon
+  start|status|stop` worked on a scratch `HUTAN_HOME`.
+- Both uninstalls, the untrust and the untap completed. The build dependencies
+  installed for the test (`rust`, `llvm`, `libgit2`, `libssh2`, `llhttp`,
+  `lz4`, `z3`, `zstd`, `pkgconf`, `readline`, `sqlite`, `openssl@4`,
+  `ca-certificates`) were removed by name with autoremove disabled; the formula,
+  cask and tap lists then matched those from before. Homebrew left the
+  configuration folders `/opt/homebrew/etc/openssl@4` and
+  `/opt/homebrew/etc/ca-certificates` behind. No app was installed in
+  `/Applications`, and no real Hutan data, desktop or daemon was touched.
+
 ## Local results for 0.3.0 (2026-10-26)
 
 On Apple Silicon, Homebrew 7.0.10, from a committed temporary copy of this tap
