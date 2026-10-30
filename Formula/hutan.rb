@@ -1,8 +1,8 @@
 class Hutan < Formula
   desc "Command-line client and daemon for the Hutan development environment"
   homepage "https://github.com/robertt3kuk/hutan"
-  url "https://github.com/robertt3kuk/hutan/releases/download/v0.3.3/Hutan-0.3.3-source.tar.gz"
-  sha256 "d37805ad616bbf4ceb19b0bbf2c2504cf262c57d9046a0a1c90b35866751d212"
+  url "https://github.com/robertt3kuk/hutan/releases/download/v0.3.4/Hutan-0.3.4-source.tar.gz"
+  sha256 "394f5b46b291a03f57d128facba5bf2514760df2fc65d150564bb5666b4d490f"
   license any_of: ["MIT", "Apache-2.0"]
 
   depends_on "rust" => :build
